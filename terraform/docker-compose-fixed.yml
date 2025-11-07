@@ -1,0 +1,77 @@
+version: '3.7'
+
+volumes:
+  proxy-data:
+  postgresql-data:
+  manager-data:
+
+services:
+  # HAProxy - Routes traffic to Manager and Keycloak
+  proxy:
+    image: openremote/proxy:latest
+    restart: always
+    depends_on:
+      manager:
+        condition: service_healthy
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8883:8883"
+    volumes:
+      - proxy-data:/deployment
+    environment:
+      DOMAINNAME: ${hostname}
+      # Disable Let's Encrypt for IP-based access
+      LE_EMAIL: ""
+    networks:
+      - openremote
+
+  postgresql:
+    image: openremote/postgresql:latest
+    restart: always
+    volumes:
+      - postgresql-data:/var/lib/postgresql/data
+      - manager-data:/storage
+    environment:
+      POSTGRES_DB: openremote
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    networks:
+      - openremote
+
+  keycloak:
+    image: openremote/keycloak:latest
+    restart: always
+    depends_on:
+      postgresql:
+        condition: service_healthy
+    environment:
+      KEYCLOAK_ADMIN_PASSWORD: secret
+      KC_HOSTNAME: ${hostname}
+      KC_HOSTNAME_PORT: -1
+    networks:
+      - openremote
+
+  manager:
+    image: openremote/manager:latest
+    restart: always
+    depends_on:
+      keycloak:
+        condition: service_healthy
+    ports:
+      - "1883:1883"
+    environment:
+      OR_SETUP_TYPE: ""
+      OR_ADMIN_PASSWORD: secret
+      OR_HOSTNAME: ${hostname}
+      OR_SSL_PORT: -1
+      OR_DEV_MODE: false
+    volumes:
+      - manager-data:/storage
+    networks:
+      - openremote
+
+networks:
+  openremote:
+    driver: bridge
+

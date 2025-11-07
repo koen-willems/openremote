@@ -142,7 +142,7 @@ Conditions:
 
 Rules:
   IsPasswordProvided:
-    RuleCondition: !Not [!Equals [!Ref Password, .+]]
+    RuleCondition: !Not [!Equals [!Ref Password, ""]]
     Assertions:
       - Assert:
           !Equals
@@ -264,6 +264,7 @@ Resources:
         - IpProtocol: udp
           FromPort: 161
           ToPort: 162
+          CidrIp: 0.0.0.0/0
           Description: SNMP Access IPv4
         - IpProtocol: udp
           FromPort: 161
