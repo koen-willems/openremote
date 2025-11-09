@@ -163,8 +163,10 @@ resource "aws_iam_instance_profile" "openremote_ec2" {
 
 # User Data Script to install Docker and run OpenRemote
 locals {
-  user_data = templatefile("${path.module}/user-data.sh", {
-    hostname        = var.openremote_hostname
+   public_hostname = var.service_hostname != "" ? var.service_hostname : aws_eip.openremote.public_ip
+
+   user_data = templatefile("${path.module}/user-data.sh", {
+    hostname        = local.public_hostname
     efs_dns_name    = var.enable_efs ? aws_efs_file_system.openremote_maps[0].dns_name : "EFS not enabled"
     s3_bucket_name  = var.enable_s3_backups ? aws_s3_bucket.openremote_backups[0].id : "S3 backups not enabled"
   })
@@ -209,13 +211,18 @@ resource "aws_instance" "openremote" {
 
 # Elastic IP for stable public access
 resource "aws_eip" "openremote" {
-  instance = aws_instance.openremote.id
-  domain   = "vpc"
+  domain = "vpc"
 
   tags = {
     Name = "${var.project_name}-${var.environment}-openremote-eip"
   }
 
   depends_on = [aws_internet_gateway.main]
+}
+
+# Associate the Elastic IP with the EC2 instance
+resource "aws_eip_association" "openremote" {
+  allocation_id = aws_eip.openremote.id
+  instance_id   = aws_instance.openremote.id
 }
 

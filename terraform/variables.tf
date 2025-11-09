@@ -149,3 +149,8 @@ variable "tags" {
   default     = {}
 }
 
+variable "service_hostname" {
+  description = "Publieke hostnaam (FQDN) van de OpenRemote instantie"
+  type        = string
+  default     = ""
+  }
