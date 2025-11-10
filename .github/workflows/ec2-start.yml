@@ -18,6 +18,5 @@ jobs:
       - name: Start EC2 instance
         run: |
           aws ec2 start-instances \
-            --instance-ids i-0bce13159f444986d
-
+            --instance-ids i-04e9469dcbf0df885
 
