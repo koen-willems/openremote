@@ -20,5 +20,6 @@ jobs:
       - name: Stop EC2 instance
         run: |
           aws ec2 stop-instances \
-            --instance-ids i-05b5c6e46bf49a39e
+            --instance-ids i-0bce13159f444986d
+
 
