@@ -2,8 +2,7 @@ name: Stop OpenRemote EC2
 
 on:
   workflow_dispatch:
-  schedule:
-    - cron: "0 21 * * *" # 21:00 UTC daily; adjust or remove as needed
+
 
 jobs:
   stop-instance:
