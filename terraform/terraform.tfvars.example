@@ -18,6 +18,7 @@ ec2_instance_type = "t3.small"       # 2 vCPU, 2GB RAM (~$15/month) - for testin
                                      # For production use: t3.medium (4GB, ~$30/mo) or t3.large (8GB, ~$60/mo)
 ec2_volume_size   = 50               # Root volume size in GB
 ec2_key_name      = ""               # SSH key pair name (leave empty to use SSM)
+ec2_ssh_public_key = ""              # Optional: set this to your SSH public key (ssh-rsa/ssh-ed25519 ...) to create a key pair
 
 # OpenRemote Configuration
 openremote_hostname = "localhost"    # Change to your domain name if you have one

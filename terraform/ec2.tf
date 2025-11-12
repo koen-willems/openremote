@@ -161,14 +161,21 @@ resource "aws_iam_instance_profile" "openremote_ec2" {
   }
 }
 
+resource "aws_key_pair" "openremote" {
+  count           = var.ec2_key_name == "" && var.ec2_ssh_public_key != "" ? 1 : 0
+  key_name_prefix = "${var.project_name}-${var.environment}-"
+  public_key      = var.ec2_ssh_public_key
+}
+
 # User Data Script to install Docker and run OpenRemote
 locals {
-   public_hostname = var.service_hostname != "" ? var.service_hostname : aws_eip.openremote.public_ip
+  effective_ec2_key_name = var.ec2_key_name != "" ? var.ec2_key_name : try(aws_key_pair.openremote[0].key_name, null)
+  public_hostname        = var.service_hostname != "" ? var.service_hostname : aws_eip.openremote.public_ip
 
-   user_data = templatefile("${path.module}/user-data.sh", {
-    hostname        = local.public_hostname
-    efs_dns_name    = var.enable_efs ? aws_efs_file_system.openremote_maps[0].dns_name : "EFS not enabled"
-    s3_bucket_name  = var.enable_s3_backups ? aws_s3_bucket.openremote_backups[0].id : "S3 backups not enabled"
+  user_data = templatefile("${path.module}/user-data.sh", {
+    hostname       = local.public_hostname
+    efs_dns_name   = var.enable_efs ? aws_efs_file_system.openremote_maps[0].dns_name : "EFS not enabled"
+    s3_bucket_name = var.enable_s3_backups ? aws_s3_bucket.openremote_backups[0].id : "S3 backups not enabled"
   })
 }
 
@@ -179,7 +186,7 @@ resource "aws_instance" "openremote" {
   subnet_id              = aws_subnet.public[0].id
   vpc_security_group_ids = [aws_security_group.openremote_ec2.id]
   iam_instance_profile   = aws_iam_instance_profile.openremote_ec2.name
-  key_name               = var.ec2_key_name != "" ? var.ec2_key_name : null
+  key_name               = local.effective_ec2_key_name
 
   root_block_device {
     volume_size           = var.ec2_volume_size

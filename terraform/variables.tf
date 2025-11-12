@@ -47,12 +47,6 @@ variable "allowed_cidr_blocks" {
   default     = ["0.0.0.0/0"]
 }
 
-variable "enable_vpc_flow_logs" {
-  description = "Enable VPC Flow Logs for monitoring and security"
-  type        = bool
-  default     = true
-}
-
 variable "enable_nat_gateway" {
   description = "Enable NAT Gateway for private subnets"
   type        = bool
@@ -73,6 +67,12 @@ variable "ec2_instance_type" {
 
 variable "ec2_key_name" {
   description = "SSH key pair name for EC2 instance access (must exist in AWS)"
+  type        = string
+  default     = ""
+}
+
+variable "ec2_ssh_public_key" {
+  description = "Public SSH key material that Terraform should register as an EC2 key pair when no key name is supplied"
   type        = string
   default     = ""
 }
@@ -154,3 +154,9 @@ variable "service_hostname" {
   type        = string
   default     = ""
   }
+
+variable "enable_vpc_flow_logs" {
+  description = "Enable VPC Flow Logs for monitoring and security"
+  type        = bool
+  default     = true
+}
