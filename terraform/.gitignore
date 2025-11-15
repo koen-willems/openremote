@@ -32,3 +32,5 @@ terraform.rc
 # Ignore lock files
 .terraform.lock.hcl
 
+#ignore localy stores secerts 
+terraform.tfvars.local
