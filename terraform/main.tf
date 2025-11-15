@@ -6,7 +6,15 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 5.0"
     }
+    cloudflare = {
+      source  = "cloudflare/cloudflare"
+      version = "4.36.0"
+    }
   }
+}
+
+provider "cloudflare" {
+  api_token = var.cloudflare_api_token
 }
 
 provider "aws" {
@@ -20,6 +28,8 @@ provider "aws" {
     }
   }
 }
+
+
 
 # VPC
 resource "aws_vpc" "main" {

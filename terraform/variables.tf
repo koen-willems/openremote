@@ -152,8 +152,33 @@ variable "tags" {
 variable "service_hostname" {
   description = "Publieke hostnaam (FQDN) van de OpenRemote instantie"
   type        = string
+  default     = "api"
+}
+
+variable "use_cloudflare_dns" {
+  description = "Manage DNS records for service_hostname using the Cloudflare provider"
+  type        = bool
+  default     = true
+}
+
+variable "cloudflare_api_token" {
+  description = "Cloudflare API token with DNS edit permissions for the zone"
+  type        = string
+  default     = null
+  sensitive   = true
+}
+
+variable "cloudflare_zone_id" {
+  description = "Cloudflare zone ID for managing DNS records"
+  type        = string
   default     = ""
-  }
+}
+
+variable "cloudflare_dns_ttl" {
+  description = "TTL in seconds for the Cloudflare managed DNS record (1 for automatic)"
+  type        = number
+  default     = 300
+}
 
 variable "enable_vpc_flow_logs" {
   description = "Enable VPC Flow Logs for monitoring and security"
