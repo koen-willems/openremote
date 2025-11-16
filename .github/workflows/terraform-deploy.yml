@@ -17,6 +17,7 @@ on:
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    if: github.actor == 'koen-willems'
     
     steps:
       - name: Checkout code
