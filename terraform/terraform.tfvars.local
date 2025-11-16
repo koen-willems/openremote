@@ -1,6 +1,0 @@
-# Local overrides for sensitive Cloudflare credentials.
-# This file should stay untracked (add to .gitignore if needed).
-
-cloudflare_api_token = "qysis-7ZhW1XZCDEw6MR2oo8ZN0wxqvrfHbDG0v6"
-cloudflare_zone_id   = "10d3dafe01ac440f6a711e64b9c2bf2e"
-
