@@ -53,6 +53,7 @@ local.properties
 *.apk
 *.dab
 *.sh
+!terraform/user-data.sh
 *.iml
 *.ipr
 *.iws
