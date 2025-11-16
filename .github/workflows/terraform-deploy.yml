@@ -2,10 +2,16 @@ name: Terraform Deploy
 
 on:
   workflow_dispatch:
+    inputs:
+      auto_apply:
+        description: 'Automatically apply changes'
+        required: false
+        default: 'false'
+        type: boolean
   push:
     branches:
-      - main
       - virtual-power-plant
+      - main
     paths:
       - 'terraform/**'
 
@@ -21,32 +27,45 @@ jobs:
         uses: hashicorp/setup-terraform@v3
         with:
           terraform_version: 1.6.0
+          terraform_wrapper: false
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
-
-      - name: Create terraform.tfvars.local from secrets
-        working-directory: terraform
-        run: |
-          cat > terraform.tfvars.local <<EOF
-          cloudflare_api_token = "${{ secrets.CLOUDFLARE_API_TOKEN }}"
-          cloudflare_zone_id   = "${{ secrets.CLOUDFLARE_ZONE_ID }}"
-          EOF
+          aws-region: ${{ secrets.AWS_REGION || 'eu-west-1' }}
 
       - name: Terraform Init
         working-directory: terraform
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: terraform init
+
+      - name: Terraform Validate
+        working-directory: terraform
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: terraform validate
 
       - name: Terraform Plan
         working-directory: terraform
-        run: terraform plan -var-file="terraform.tfvars.local" -out=tfplan
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+        run: terraform plan -out=tfplan
+
+      - name: Terraform Plan Output
+        working-directory: terraform
+        if: github.event_name == 'pull_request'
+        run: terraform show -no-color tfplan
 
       - name: Terraform Apply
-        if: github.event_name == 'push' || github.event.inputs.auto_apply == 'true'
+        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.auto_apply == 'true')
         working-directory: terraform
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: terraform apply -auto-approve tfplan
-
