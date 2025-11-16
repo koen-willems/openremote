@@ -172,7 +172,7 @@ locals {
   effective_ec2_key_name = var.ec2_key_name != "" ? var.ec2_key_name : try(aws_key_pair.openremote[0].key_name, null)
   public_hostname        = var.service_hostname != "" ? var.service_hostname : aws_eip.openremote.public_ip
 
-  user_data = templatefile("${path.module}/user-data.sh", {
+  user_data = templatefile("user-data.sh", {
     hostname       = local.public_hostname
     efs_dns_name   = var.enable_efs ? aws_efs_file_system.openremote_maps[0].dns_name : "EFS not enabled"
     s3_bucket_name = var.enable_s3_backups ? aws_s3_bucket.openremote_backups[0].id : "S3 backups not enabled"
