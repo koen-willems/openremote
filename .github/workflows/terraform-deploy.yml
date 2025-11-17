@@ -50,6 +50,22 @@ jobs:
           TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
         run: terraform validate
 
+      - name: Debug Cloudflare Variables
+        working-directory: terraform
+        run: |
+          echo "Checking Cloudflare variables..."
+          echo "Zone ID length: ${#TF_VAR_cloudflare_zone_id}"
+          echo "Token length: ${#TF_VAR_cloudflare_api_token}"
+          if [ -z "$TF_VAR_cloudflare_zone_id" ]; then
+            echo "ERROR: CLOUDFLARE_ZONE_ID is empty!"
+          fi
+          if [ -z "$TF_VAR_cloudflare_api_token" ]; then
+            echo "ERROR: CLOUDFLARE_API_TOKEN is empty!"
+          fi
+        env:
+          TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          TF_VAR_cloudflare_zone_id: ${{ secrets.CLOUDFLARE_ZONE_ID }}
+
       - name: Terraform Plan
         working-directory: terraform
         env:
@@ -63,7 +79,7 @@ jobs:
         run: terraform show -no-color tfplan
 
       - name: Terraform Apply
-        if: github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && github.event.inputs.auto_apply == 'true')
+        if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
         working-directory: terraform
         env:
           TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
