@@ -17,7 +17,7 @@ resource "cloudflare_record" "openremote" {
   zone_id = var.cloudflare_zone_id
   name    = local.cloudflare_record_name == "" ? var.service_hostname : local.cloudflare_record_name
   type    = "A"
-  content = aws_eip.openremote.public_ip
+  value   = aws_eip.openremote.public_ip
   ttl     = var.cloudflare_dns_ttl
   proxied = false
 }
